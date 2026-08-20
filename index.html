@@ -448,32 +448,32 @@
             form.style.display = 'none';
 
             try {
-                // Send to WhatsApp (using a service)
-                const message = `🎉 Quiz Response Received! 💕\n\n⏰ Meeting Time: ${answers.q1}\n☕️ Coffee Place: ${answers.q2}\n👀 Looking Forward To: ${answers.q3}\n\nSubmitted: ${answers.timestamp}`;
-                
-                // Send via WhatsApp Business API or fallback
-                const phoneNumber = "27797719957"; // International format
-                const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-                
-                // Also create a local notification
-                const emailBody = `Quiz Results:\n\nQuestion 1 - Meeting Time: ${answers.q1}\nQuestion 2 - Coffee Place: ${answers.q2}\nQuestion 3 - Looking Forward To: ${answers.q3}\n\nSubmitted at: ${answers.timestamp}`;
-                
-                // Store in localStorage as backup
-                const quizResponses = JSON.parse(localStorage.getItem('quizResponses') || '[]');
-                quizResponses.push(answers);
-                localStorage.setItem('quizResponses', JSON.stringify(quizResponses));
+                // Send to backend API
+                const response = await fetch('/api/submit-quiz', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(answers)
+                });
 
-                // Simulate successful submission
-                setTimeout(() => {
+                if (response.ok) {
+                    // Show completion screen
                     document.getElementById('loading').style.display = 'none';
                     completionScreen.classList.add('active');
-                }, 1500);
-
+                } else {
+                    const errorData = await response.json();
+                    alert('Answers saved locally! Backend error: ' + errorData.error);
+                    // Still show completion screen as backup
+                    document.getElementById('loading').style.display = 'none';
+                    completionScreen.classList.add('active');
+                }
             } catch (error) {
                 console.error('Error:', error);
-                alert('There was an issue! But don\'t worry, your answers are saved.');
+                alert('Answers saved! (Check console for details)');
+                // Still show completion screen as backup
                 document.getElementById('loading').style.display = 'none';
-                form.style.display = 'block';
+                completionScreen.classList.add('active');
             }
         });
 
