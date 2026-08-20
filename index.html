@@ -242,23 +242,39 @@
             box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
         }
 
-        .loading {
-            display: none;
+        .copy-button {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 15px;
         }
 
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+        .copy-button:hover {
+            background: #764ba2;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .copy-button.copied {
+            background: #27ae60;
+        }
+
+        .whatsapp-link {
+            display: inline-block;
+            background: #25d366;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .whatsapp-link:hover {
+            background: #20ba5a;
+            transform: translateY(-2px);
         }
     </style>
 </head>
@@ -368,14 +384,23 @@
             <div class="completion-screen">
                 <div class="coffee-icon">☕</div>
                 <h2>Perfect! 🎉</h2>
-                <p id="summaryText">Your answers have been sent to me! Can't wait for Sunday! 😊</p>
-                <button type="button" class="btn-submit" onclick="location.reload()">Take Quiz Again</button>
+                <p id="summaryText">Your answers have been saved!</p>
+                
+                <div id="answersDisplay" style="background: #f5f7ff; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: left;">
+                    <p><strong>⏰ Meeting Time:</strong> <span id="displayQ1"></span></p>
+                    <p><strong>☕️ Coffee Place:</strong> <span id="displayQ2"></span></p>
+                    <p><strong>👀 Looking Forward To:</strong> <span id="displayQ3"></span></p>
+                </div>
+
+                <a id="whatsappLink" class="whatsapp-link" target="_blank">Send via WhatsApp 📱</a>
+                
+                <button type="button" class="btn-submit" onclick="location.reload()" style="display: block; margin-top: 20px;">Take Quiz Again</button>
             </div>
 
             <div class="buttons">
                 <button type="button" class="btn-prev" id="prevBtn" onclick="changeQuestion(-1)" style="display:none;">← Back</button>
                 <button type="button" class="btn-next" id="nextBtn" onclick="changeQuestion(1)">Next →</button>
-                <button type="submit" class="btn-submit" id="submitBtn" style="display:none;">Send My Answers 💕</button>
+                <button type="submit" class="btn-submit" id="submitBtn" style="display:none;">See My Answers 💕</button>
             </div>
 
             <div class="progress">
@@ -385,11 +410,6 @@
                 </div>
             </div>
         </form>
-
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Sending your answers...</p>
-        </div>
     </div>
 
     <script>
@@ -432,49 +452,38 @@
             showQuestion(currentQuestion);
         }
 
-        form.addEventListener('submit', async function(e) {
+        form.addEventListener('submit', function(e) {
             e.preventDefault();
 
             // Get answers
-            const answers = {
-                q1: document.querySelector('input[name="q1"]:checked').value,
-                q2: document.querySelector('input[name="q2"]:checked').value,
-                q3: document.querySelector('input[name="q3"]:checked').value,
+            const q1 = document.querySelector('input[name="q1"]:checked').value;
+            const q2 = document.querySelector('input[name="q2"]:checked').value;
+            const q3 = document.querySelector('input[name="q3"]:checked').value;
+
+            // Display answers
+            document.getElementById('displayQ1').textContent = q1;
+            document.getElementById('displayQ2').textContent = q2;
+            document.getElementById('displayQ3').textContent = q3;
+
+            // Create WhatsApp message
+            const message = `🎉 Quiz Response! 💕\n\n⏰ Meeting Time: ${q1}\n☕️ Coffee Place: ${q2}\n👀 Looking Forward To: ${q3}`;
+            
+            // WhatsApp link
+            const whatsappUrl = `https://wa.me/27797719957?text=${encodeURIComponent(message)}`;
+            document.getElementById('whatsappLink').href = whatsappUrl;
+
+            // Store in localStorage
+            const quizData = {
+                q1: q1,
+                q2: q2,
+                q3: q3,
                 timestamp: new Date().toLocaleString()
             };
+            localStorage.setItem('quizAnswers', JSON.stringify(quizData));
 
-            // Show loading
-            document.getElementById('loading').style.display = 'block';
+            // Show completion screen
             form.style.display = 'none';
-
-            try {
-                // Send to backend API
-                const response = await fetch('/api/submit-quiz', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(answers)
-                });
-
-                if (response.ok) {
-                    // Show completion screen
-                    document.getElementById('loading').style.display = 'none';
-                    completionScreen.classList.add('active');
-                } else {
-                    const errorData = await response.json();
-                    alert('Answers saved locally! Backend error: ' + errorData.error);
-                    // Still show completion screen as backup
-                    document.getElementById('loading').style.display = 'none';
-                    completionScreen.classList.add('active');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Answers saved! (Check console for details)');
-                // Still show completion screen as backup
-                document.getElementById('loading').style.display = 'none';
-                completionScreen.classList.add('active');
-            }
+            completionScreen.classList.add('active');
         });
 
         // Initial display
