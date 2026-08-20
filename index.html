@@ -242,24 +242,6 @@
             box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
         }
 
-        .copy-button {
-            background: #667eea;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-top: 15px;
-        }
-
-        .copy-button:hover {
-            background: #764ba2;
-        }
-
-        .copy-button.copied {
-            background: #27ae60;
-        }
-
         .whatsapp-link {
             display: inline-block;
             background: #25d366;
@@ -270,11 +252,27 @@
             font-weight: 600;
             margin-top: 20px;
             transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
         }
 
         .whatsapp-link:hover {
             background: #20ba5a;
             transform: translateY(-2px);
+        }
+
+        .answers-box {
+            background: #f5f7ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .answers-box p {
+            margin: 10px 0;
+            font-size: 15px;
         }
     </style>
 </head>
@@ -384,17 +382,17 @@
             <div class="completion-screen">
                 <div class="coffee-icon">☕</div>
                 <h2>Perfect! 🎉</h2>
-                <p id="summaryText">Your answers have been saved!</p>
+                <p>Your answers are ready to send!</p>
                 
-                <div id="answersDisplay" style="background: #f5f7ff; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: left;">
+                <div class="answers-box">
                     <p><strong>⏰ Meeting Time:</strong> <span id="displayQ1"></span></p>
                     <p><strong>☕️ Coffee Place:</strong> <span id="displayQ2"></span></p>
                     <p><strong>👀 Looking Forward To:</strong> <span id="displayQ3"></span></p>
                 </div>
 
-                <a id="whatsappLink" class="whatsapp-link" target="_blank">Send via WhatsApp 📱</a>
+                <button class="whatsapp-link" onclick="sendToWhatsApp()">📱 Send to WhatsApp</button>
                 
-                <button type="button" class="btn-submit" onclick="location.reload()" style="display: block; margin-top: 20px;">Take Quiz Again</button>
+                <button type="button" class="btn-submit" onclick="location.reload()" style="margin-top: 20px;">Take Quiz Again</button>
             </div>
 
             <div class="buttons">
@@ -414,6 +412,7 @@
 
     <script>
         let currentQuestion = 0;
+        let answers = {};
         const questions = document.querySelectorAll('.question-container');
         const totalQuestions = questions.length;
         const form = document.getElementById('quizForm');
@@ -452,34 +451,34 @@
             showQuestion(currentQuestion);
         }
 
+        function sendToWhatsApp() {
+            const message = `🎉 Quiz Response! 💕\n\n⏰ Meeting Time: ${answers.q1}\n☕️ Coffee Place: ${answers.q2}\n👀 Looking Forward To: ${answers.q3}`;
+            
+            // WhatsApp Web link - correct format for South Africa
+            const phoneNumber = "270797719957";
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+            
+            window.open(whatsappUrl, '_blank');
+        }
+
         form.addEventListener('submit', function(e) {
             e.preventDefault();
 
             // Get answers
-            const q1 = document.querySelector('input[name="q1"]:checked').value;
-            const q2 = document.querySelector('input[name="q2"]:checked').value;
-            const q3 = document.querySelector('input[name="q3"]:checked').value;
+            answers = {
+                q1: document.querySelector('input[name="q1"]:checked').value,
+                q2: document.querySelector('input[name="q2"]:checked').value,
+                q3: document.querySelector('input[name="q3"]:checked').value
+            };
 
             // Display answers
-            document.getElementById('displayQ1').textContent = q1;
-            document.getElementById('displayQ2').textContent = q2;
-            document.getElementById('displayQ3').textContent = q3;
-
-            // Create WhatsApp message
-            const message = `🎉 Quiz Response! 💕\n\n⏰ Meeting Time: ${q1}\n☕️ Coffee Place: ${q2}\n👀 Looking Forward To: ${q3}`;
-            
-            // WhatsApp link
-            const whatsappUrl = `https://wa.me/27797719957?text=${encodeURIComponent(message)}`;
-            document.getElementById('whatsappLink').href = whatsappUrl;
+            document.getElementById('displayQ1').textContent = answers.q1;
+            document.getElementById('displayQ2').textContent = answers.q2;
+            document.getElementById('displayQ3').textContent = answers.q3;
 
             // Store in localStorage
-            const quizData = {
-                q1: q1,
-                q2: q2,
-                q3: q3,
-                timestamp: new Date().toLocaleString()
-            };
-            localStorage.setItem('quizAnswers', JSON.stringify(quizData));
+            localStorage.setItem('quizAnswers', JSON.stringify({...answers, timestamp: new Date().toLocaleString()}));
 
             // Show completion screen
             form.style.display = 'none';
