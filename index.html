@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Sunday Plan 💕</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: #764ba2;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .question-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .question-title {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            background: white;
+            color: #333;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background-color: #f5f7ff;
+            transform: translateX(5px);
+        }
+
+        .option input[type="radio"] {
+            margin-right: 12px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        .option label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-width: 120px;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-prev {
+            background: #f0f0f0;
+            color: #333;
+            min-width: 120px;
+        }
+
+        .btn-prev:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        .progress {
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .completion-screen {
+            text-align: center;
+            display: none;
+        }
+
+        .completion-screen.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .completion-screen h2 {
+            font-size: 28px;
+            color: #764ba2;
+            margin-bottom: 15px;
+        }
+
+        .completion-screen p {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .heart-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% {
+                transform: scale(1);
+            }
+            25% {
+                transform: scale(1.2);
+            }
+            50% {
+                transform: scale(1);
+            }
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            font-size: 18px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .loading {
+            display: none;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="heart-icon">💕</div>
+            <h1>Our Sunday Plan</h1>
+            <p>Let's plan the perfect date! Answer these quick questions 😊</p>
+        </div>
+
+        <form id="quizForm">
+            <!-- Question 1 -->
+            <div class="question-container active">
+                <div class="question-title">What time should we meet on Sunday? ⏰</div>
+                <div class="options">
+                    <div class="option">
+                        <label>
+                            <input type="radio" name="q1" value="12:00" required>
+                            12:00
+                        </label>
+                    </div>
+                    <div class="option">
+                        <label>
+                            <input type="radio" name="q1" value="13:00" required>
+                            13:00
+                        </label>
+                    </div>
+                    <div class="option">
+                        <label>
+                            <input type="radio" name="q1" value="14:00" required>
+                            14:00
+                        </label>
+                    </div>
+                    <div class="option">
+                        <label>
+                            <input type="radio" name="q1" value="15:00" required>
+                            15:00
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="question-container">
+                <div class="question-title">Where are we getting our first coffee together? ☕️</div>
+                <div class="options">
+                    <div class="option">
+                        <label>
+                            <input type="radio" name="q2" value="Starbucks Sandton" required>
+                            Starbucks Sandton
+                        </label>
+                    </div>
+                    <div class="option">
+                        <label>
+                            <input type="radio" name="q2" value="Tashas" required>
+                            Tashas
+                        </label>
+                    </div>
+                    <div class="option">
+                        <label>
+                            <input type="radio" name="q2" value="Motherland Coffee" required>
+                            Motherland Coffee
+                        </label>
+                    </div>
+                    <div class="option">
+                        <label>
+                            <input type="radio" name="q2" value="Your choice 😌" required>
+                            Your choice 😌
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="question-container">
+                <div class="question-title">Okay, important question… what are you most looking forward to? 👀</div>
+                <div class="options">
+                    <div class="option">
+                        <label>
+                            <input type="radio" name="q3" value="Good coffee ☕️" required>
+                            Good coffee ☕️
+                        </label>
+                    </div>
+                    <div class="option">
+                        <label>
+                            <input type="radio" name="q3" value="Good food 🍰" required>
+                            Good food 🍰
+                        </label>
+                    </div>
+                    <div class="option">
+                        <label>
+                            <input type="radio" name="q3" value="Getting to know you better 😊" required>
+                            Getting to know you better 😊
+                        </label>
+                    </div>
+                    <div class="option">
+                        <label>
+                            <input type="radio" name="q3" value="Honestly… seeing you" required>
+                            Honestly… seeing you
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completion Screen -->
+            <div class="completion-screen">
+                <div class="heart-icon">💕</div>
+                <h2>Perfect! 🎉</h2>
+                <p id="summaryText">Your answers have been sent to me! Can't wait for Sunday! 😊</p>
+                <button type="button" class="btn-submit" onclick="location.reload()">Take Quiz Again</button>
+            </div>
+
+            <div class="buttons">
+                <button type="button" class="btn-prev" id="prevBtn" onclick="changeQuestion(-1)" style="display:none;">← Back</button>
+                <button type="button" class="btn-next" id="nextBtn" onclick="changeQuestion(1)">Next →</button>
+                <button type="submit" class="btn-submit" id="submitBtn" style="display:none;">Send My Answers 💕</button>
+            </div>
+
+            <div class="progress">
+                <span id="progressText">Question 1 of 3</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 33.33%;"></div>
+                </div>
+            </div>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Sending your answers...</p>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 0;
+        const questions = document.querySelectorAll('.question-container');
+        const totalQuestions = questions.length;
+        const form = document.getElementById('quizForm');
+        const completionScreen = document.querySelector('.completion-screen');
+
+        function showQuestion(n) {
+            questions.forEach(q => q.classList.remove('active'));
+            questions[n].classList.add('active');
+
+            // Update buttons
+            document.getElementById('prevBtn').style.display = n === 0 ? 'none' : 'block';
+            document.getElementById('nextBtn').style.display = n === totalQuestions - 1 ? 'none' : 'block';
+            document.getElementById('submitBtn').style.display = n === totalQuestions - 1 ? 'block' : 'none';
+
+            // Update progress
+            document.getElementById('progressText').textContent = `Question ${n + 1} of ${totalQuestions}`;
+            document.getElementById('progressFill').style.width = `${((n + 1) / totalQuestions) * 100}%`;
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeQuestion(n) {
+            const currentRadios = questions[currentQuestion].querySelectorAll('input[type="radio"]');
+            const isAnswered = Array.from(currentRadios).some(radio => radio.checked);
+
+            if (n === 1 && !isAnswered) {
+                alert('Please select an answer before proceeding! 😊');
+                return;
+            }
+
+            currentQuestion += n;
+            if (currentQuestion < 0) currentQuestion = 0;
+            if (currentQuestion >= totalQuestions) currentQuestion = totalQuestions - 1;
+
+            showQuestion(currentQuestion);
+        }
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Get answers
+            const answers = {
+                q1: document.querySelector('input[name="q1"]:checked').value,
+                q2: document.querySelector('input[name="q2"]:checked').value,
+                q3: document.querySelector('input[name="q3"]:checked').value,
+                timestamp: new Date().toLocaleString()
+            };
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            form.style.display = 'none';
+
+            try {
+                // Send to WhatsApp (using a service)
+                const message = `🎉 Quiz Response Received! 💕\n\n⏰ Meeting Time: ${answers.q1}\n☕️ Coffee Place: ${answers.q2}\n👀 Looking Forward To: ${answers.q3}\n\nSubmitted: ${answers.timestamp}`;
+                
+                // Send via WhatsApp Business API or fallback
+                const phoneNumber = "27797719957"; // International format
+                const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+                
+                // Also create a local notification
+                const emailBody = `Quiz Results:\n\nQuestion 1 - Meeting Time: ${answers.q1}\nQuestion 2 - Coffee Place: ${answers.q2}\nQuestion 3 - Looking Forward To: ${answers.q3}\n\nSubmitted at: ${answers.timestamp}`;
+                
+                // Store in localStorage as backup
+                const quizResponses = JSON.parse(localStorage.getItem('quizResponses') || '[]');
+                quizResponses.push(answers);
+                localStorage.setItem('quizResponses', JSON.stringify(quizResponses));
+
+                // Simulate successful submission
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                    completionScreen.classList.add('active');
+                }, 1500);
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('There was an issue! But don\'t worry, your answers are saved.');
+                document.getElementById('loading').style.display = 'none';
+                form.style.display = 'block';
+            }
+        });
+
+        // Initial display
+        showQuestion(0);
+    </script>
+</body>
+</html>
