@@ -212,21 +212,21 @@
             line-height: 1.6;
         }
 
-        .heart-icon {
+        .coffee-icon {
             font-size: 48px;
             margin-bottom: 20px;
-            animation: heartbeat 1.5s infinite;
+            animation: wiggle 1.5s infinite;
         }
 
-        @keyframes heartbeat {
+        @keyframes wiggle {
             0%, 100% {
-                transform: scale(1);
+                transform: rotate(0deg);
             }
             25% {
-                transform: scale(1.2);
+                transform: rotate(-5deg);
             }
-            50% {
-                transform: scale(1);
+            75% {
+                transform: rotate(5deg);
             }
         }
 
@@ -265,7 +265,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="heart-icon">💕</div>
+            <div class="coffee-icon">☕</div>
             <h1>Our Sunday Plan</h1>
             <p>Let's plan the perfect date! Answer these quick questions 😊</p>
         </div>
@@ -366,7 +366,7 @@
 
             <!-- Completion Screen -->
             <div class="completion-screen">
-                <div class="heart-icon">💕</div>
+                <div class="coffee-icon">☕</div>
                 <h2>Perfect! 🎉</h2>
                 <p id="summaryText">Your answers have been sent to me! Can't wait for Sunday! 😊</p>
                 <button type="button" class="btn-submit" onclick="location.reload()">Take Quiz Again</button>
